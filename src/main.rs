@@ -1,10 +1,14 @@
 use std::error::Error;
-use std::io::{Read, Write, Result as IoResult};
+use std::io::{self, Read, Write};
 
-fn hello_by_read_write(source: &mut Vec<u8>) -> IoResult<Vec<u8>> {
+fn hello_by_read_write(source: &mut Vec<u8>) -> io::Result<Vec<u8>> {
+    #[allow(unused_mut)]
     let mut glop: Vec<u8> = "hello world".as_bytes().to_vec();
+    #[cfg(feature = "bad-utf8")]
     glop.push(0x80);
     source.write_all(&glop)?;
+    #[cfg(feature = "gratuitous-flush")]
+    source.flush()?;
     let mut sink = Vec::new();
     source.as_slice().read_to_end(&mut sink)?;
     Ok(sink)
